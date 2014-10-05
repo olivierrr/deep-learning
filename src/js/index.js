@@ -8,48 +8,48 @@ var game = new Phaser.Game('100%', '100%', Phaser.AUTO, document.body, {
 
 var cursors
 
-function preload () 
-{	
+var agent
+
+function preload () {	
 	game.time.advancedTiming = true
 	game.stage.disableVisibilityChange = true
 	game.load.image('redsquare', 'img/redsquare.png')
 }
 
-function create () 
-{
-	game.world.setBounds(-1000, -1000, 2000, 2000)
+function create () {
+	game.world.setBounds(0, 0, 500, 500)
+	game.physics.startSystem(Phaser.Physics.P2JS)
 
-	for(var i=0; i<10; i++) {
-		var o = game.add.sprite(game.world.randomX, game.world.randomY, 'redsquare')
-	}
+	agent = window.agent = new Agent(game, 250, 250)
 
 	cursors = game.input.keyboard.createCursorKeys()
 }
 
+var frameCount = 0
+
 function update () {
+
+	// frameCount++
+	// if(frameCount%10 === 0) {
+	// 	agent.update()
+	// 	frameCount = 0
+	// }
+	agent.update()
 
 	move_camera_by_pointer(game.input.mousePointer)
 	move_camera_by_pointer(game.input.pointer1)
 
-    if (cursors.up.isDown) {
-        game.camera.y -= 15;
-    }
-    else if (cursors.down.isDown) {
-        game.camera.y += 15;
-    }
+    if (cursors.left.isDown) agent.body.rotateLeft(100)
+    else if (cursors.right.isDown) agent.body.rotateRight(100)
+    else agent.body.setZeroRotation()
 
-    if (cursors.left.isDown) {
-        game.camera.x -= 15;
-    }
-    else if (cursors.right.isDown) {
-        game.camera.x += 15;
-    }
+    if (cursors.up.isDown) agent.body.thrust(400)
+    else if (cursors.down.isDown) agent.body.reverse(400)
 }
 
-function render () 
-{
+function render () {
 	game.debug.cameraInfo(game.camera, 32, 64)
-	game.debug.text(game.time.fps || '00', 32, 32, "#00ff00");    
+	game.debug.text(game.time.fps || '00', 32, 32, "#00ff00")
 }
 
 var o_mcamera
