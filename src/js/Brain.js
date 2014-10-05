@@ -4,7 +4,7 @@
  */
 function Brain () {
 
-	var num_inputs = 6 // inputs
+	var num_inputs = 17 // inputs
 	var num_actions = 4 // outputs
 	var temporal_window = 1; // amount of temporal memory
 	var network_size = num_inputs*temporal_window + num_actions*temporal_window + num_inputs

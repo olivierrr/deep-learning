@@ -10,6 +10,8 @@ var AGENT_COUNT = 10
 
 var cursors
 
+var debugTarget
+
 var agents = []
 
 var me
@@ -21,15 +23,20 @@ function preload () {
 }
 
 function create () {
-	game.world.setBounds(0, 0, '1900', '800')
+	game.world.setBounds(0, 0, '1920', '800')
 	game.physics.startSystem(Phaser.Physics.P2JS)
-	//game.physics.p2.setImpactEvents(true)
+
+	Object.keys(game.physics.p2.walls).forEach(function (key) {
+		game.physics.p2.walls[key].shapes[0].name = 'wall'
+		game.physics.p2.walls[key].shapes[0].key = key
+	})
 
 	for(var i=0; i<AGENT_COUNT; i++) {
 		agents.push(new Agent(game, game.world.randomX, game.world.randomY))
 	}
 
 	me = new Agent(game, game.world.randomX, game.world.randomY)
+	debugTarget = me
 
 	cursors = game.input.keyboard.createCursorKeys()
 }
@@ -39,8 +46,9 @@ var frameCount = 0
 function update () {
 
 	frameCount++
-	if(frameCount%10 === 0) {
+	if(frameCount=== 10) {
 		agents.forEach(function (agent) { agent.update() })
+		me.update()
 		frameCount = 0
 	}
 
@@ -57,8 +65,9 @@ function update () {
 
 function render () {
 	game.debug.body(agents)
-	game.debug.cameraInfo(game.camera, 32, 64)
 	game.debug.text(game.time.fps || '00', 32, 32, "#00ff00")
+
+	game.debug.text(debugTarget.input, 32, 60)
 }
 
 var o_mcamera
