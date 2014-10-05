@@ -55,16 +55,10 @@ Agent.prototype.boot = function (x, y) {
 	this.sprite.anchor.set(0.5)
 	this.game.physics.p2.enable(this.sprite, true)
 	this.body = this.sprite.body
+	this.body.data.shapes[0].name = 'agent'
 
-	var offsetTable = [
-		{x: 50, y: 0},
-		{x: 0, y: 50},
-		{x: -50, y: 0},
-		{x: 0, y: -50}
-	]
-
-	for(var i=0; i<4; i++) {
-		var eye = this.body.addRectangle(100, 1, offsetTable[i].x, offsetTable[i].y, 1.570796327*i)	
+	for(var i=0; i<5; i++) {
+		var eye = this.body.addRectangle(100, 1, ((i*10)-20), -60, (1.221730476+(i*0.174532925)))	
 		eye.name = ('eye'+i)
 		eye.sensor = true
 		this.eyes.push(eye)
@@ -87,7 +81,8 @@ Agent.prototype._onCollision = function (bodyA, shapeA, shapeB, equation) {
 	else if(shapeA.name === 'eye1') this.input[1] = 1
 	else if(shapeA.name === 'eye2') this.input[2] = 1
 	else if(shapeA.name === 'eye3') this.input[3] = 1
-	else this.reward -= 1
+	else if(shapeA.name === 'eye4') this.input[4] = 1
+	else if(shapeA.name === 'agent') this.reward -= 1
 
 }
 
@@ -103,7 +98,7 @@ Agent.prototype._onEndCollision = function (bodyA, shapeA, shapeB, equation) {
 	else if(shapeA.name === 'eye1') this.input[1] = 0
 	else if(shapeA.name === 'eye2') this.input[2] = 0
 	else if(shapeA.name === 'eye3') this.input[3] = 0
-	else this.reward -= 1
+	else if(shapeA.name === 'eye4') this.input[4] = 0
 
 }
 
@@ -114,11 +109,9 @@ Agent.prototype.update = function () {
 
 	this.rewardBrain()
 
+	this.input[5] = ((this.body.angle+180)*(100/36000))
 	var input = this.getInput()
-	//console.log(input)
 	var output = this.brain.forward(input)
-
-	//console.log(output)
 
 	switch(output) {
 		case 0: this.body.thrust(2000); this.reward += 0.1; this.body.setZeroRotation();

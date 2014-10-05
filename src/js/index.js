@@ -21,7 +21,7 @@ function preload () {
 }
 
 function create () {
-	game.world.setBounds(0, 0, '1900', '500')
+	game.world.setBounds(0, 0, '1900', '800')
 	game.physics.startSystem(Phaser.Physics.P2JS)
 	//game.physics.p2.setImpactEvents(true)
 
@@ -29,7 +29,7 @@ function create () {
 		agents.push(new Agent(game, game.world.randomX, game.world.randomY))
 	}
 
-	me = new Agent(game, 500, 500)
+	me = new Agent(game, game.world.randomX, game.world.randomY)
 
 	cursors = game.input.keyboard.createCursorKeys()
 }
@@ -53,7 +53,6 @@ function update () {
 
     if (cursors.up.isDown) me.body.thrust(400)    
     else if (cursors.down.isDown) me.body.reverse(400)
-
 }
 
 function render () {
