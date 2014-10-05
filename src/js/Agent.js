@@ -53,31 +53,26 @@ Agent.prototype.boot = function (x, y) {
 	this.sprite.width = 20
 	this.sprite.height = 20
 	this.sprite.anchor.set(0.5)
-	this.game.physics.p2.enable(this.sprite)
+	this.game.physics.p2.enable(this.sprite, true)
 	this.body = this.sprite.body
 
-
-
-	// var eye2 = this.body.addLine(100, 100, 100, 1.570796327)	
-	// eye2.name = 'eye2'
-	// eye2.sensor = true
+	var offsetTable = [
+		{x: 50, y: 0},
+		{x: 0, y: 50},
+		{x: -50, y: 0},
+		{x: 0, y: -50}
+	]
 
 	for(var i=0; i<4; i++) {
-		var eye = this.game.add.sprite(x, y, 'redsquare')
-		this.game.physics.p2.enable(eye)
-		eye.body.angle = 90*i
-		eye.off
-		eye.width = 100
-		eye.height = 1
-		eye.name = 'eye'+i
-		eye.anchor.x = 0
-		eye.body.data.shapes[0].sensor = true
-		eye.body.onBeginContact.add(this._onCollision, this)
+		var eye = this.body.addRectangle(100, 1, offsetTable[i].x, offsetTable[i].y, 1.570796327*i)	
+		eye.name = ('eye'+i)
+		eye.sensor = true
 		this.eyes.push(eye)
 	}
 
-
 	this.body.onBeginContact.add(this._onCollision, this)
+	this.body.onEndContact.add(this._onEndCollision, this)
+
 }
 
 /*
@@ -86,12 +81,24 @@ Agent.prototype.boot = function (x, y) {
  */
 Agent.prototype._onCollision = function (body, shapeA, shapeB, equation) {
 
-	console.log(shapeA.name)
-	
-	if(shapeA.name === 'eye1') this.input[0] = 1
-	else if(shapeA.name === 'eye2') this.input[1] = 1
-	else if(shapeA.name === 'eye3') this.input[2] = 1
-	else if(shapeA.name === 'eye4') this.input[3] = 1
+	if(shapeA.name === 'eye0') this.input[0] = 1
+	else if(shapeA.name === 'eye1') this.input[1] = 1
+	else if(shapeA.name === 'eye2') this.input[2] = 1
+	else if(shapeA.name === 'eye3') this.input[3] = 1
+	else this.reward -= 1
+
+}
+
+/*
+ * @method onCollision
+ * @private
+ */
+Agent.prototype._onEndCollision = function (body, shapeA, shapeB, equation) {
+
+	if(shapeA.name === 'eye0') this.input[0] = 0
+	else if(shapeA.name === 'eye1') this.input[1] = 0
+	else if(shapeA.name === 'eye2') this.input[2] = 0
+	else if(shapeA.name === 'eye3') this.input[3] = 0
 	else this.reward -= 1
 
 }
@@ -100,31 +107,25 @@ Agent.prototype._onCollision = function (body, shapeA, shapeB, equation) {
  *
  */
 Agent.prototype.update = function () {
-	var _this = this
-	this.eyes.forEach(function (eye) {
-		eye.body.x = _this.body.x
-		eye.body.y = _this.body.y
-		eye.body.rotation += Phaser.Math.degToRad(_this.body.rotation)
-	})
 
 	this.rewardBrain()
 
 	var input = this.getInput()
-	//console.log(input)
+	console.log(input)
 	var output = this.brain.forward(input)
 
 	//console.log(output)
 
-	// switch(output) {
-	// 	case 0: this.body.rotateLeft(10); console.log('left')
-	// 		;break;
-	// 	case 1: this.body.rotateRight(10); console.log('right')
-	// 		;break;
-	// 	case 2: this.body.thrust(5000); this.reward += 0.01;
-	// 		;break;
-	// 	case 3: this.body.reverse(5000);
-	// 		;break;
-	// }
+	switch(output) {
+		case 0: this.body.rotateLeft(10);
+			;break;
+		case 1: this.body.rotateRight(10);
+			;break;
+		case 2: this.body.thrust(5000); this.reward += 0.01;
+			;break;
+		case 3: this.body.reverse(5000);
+			;break;
+	}
 }
 
 /*
@@ -140,9 +141,9 @@ Agent.prototype.rewardBrain = function () {
  * @method method_name
  */
 Agent.prototype.getInput = function () {
-	var input = this.input
-	this.input = [0, 0, 0, 0]
-	return input
+	// var input = this.input
+	// this.input = [0, 0, 0, 0]
+	return this.input
 }
 
 /*
