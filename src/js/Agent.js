@@ -79,7 +79,9 @@ Agent.prototype.boot = function (x, y) {
  * @method onCollision
  * @private
  */
-Agent.prototype._onCollision = function (body, shapeA, shapeB, equation) {
+Agent.prototype._onCollision = function (bodyA, shapeA, shapeB, equation) {
+
+	console.log(bodyA)
 
 	if(shapeA.name === 'eye0') this.input[0] = 1
 	else if(shapeA.name === 'eye1') this.input[1] = 1
@@ -93,7 +95,9 @@ Agent.prototype._onCollision = function (body, shapeA, shapeB, equation) {
  * @method onCollision
  * @private
  */
-Agent.prototype._onEndCollision = function (body, shapeA, shapeB, equation) {
+Agent.prototype._onEndCollision = function (bodyA, shapeA, shapeB, equation) {
+
+	console.log(bodyA)
 
 	if(shapeA.name === 'eye0') this.input[0] = 0
 	else if(shapeA.name === 'eye1') this.input[1] = 0
@@ -111,19 +115,19 @@ Agent.prototype.update = function () {
 	this.rewardBrain()
 
 	var input = this.getInput()
-	console.log(input)
+	//console.log(input)
 	var output = this.brain.forward(input)
 
 	//console.log(output)
 
 	switch(output) {
-		case 0: this.body.rotateLeft(10);
+		case 0: this.body.thrust(2000); this.reward += 0.1; this.body.setZeroRotation();
 			;break;
-		case 1: this.body.rotateRight(10);
+		case 1: this.body.rotateRight(50); 
 			;break;
-		case 2: this.body.thrust(5000); this.reward += 0.01;
+		case 2: this.body.rotateLeft(50);
 			;break;
-		case 3: this.body.reverse(5000);
+		case 3: this.body.reverse(2000); this.body.setZeroRotation();
 			;break;
 	}
 }
