@@ -1,0 +1,18 @@
+{
+  "name": "deep-learning",
+  "version": "0.0.0",
+  "description": "deep-learning",
+  "main": "index.js",
+  "scripts": {
+    "build": "browserify -e ./src/index.js > ./src/bundle.js",
+    "dev": "watchify ./src/index.js:./src/bundle.js --live --open",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "olivierrr",
+  "license": "MIT",
+  "devDependencies": {
+    "browserify": "^5.9.3"
+  },
+  "dependencies": {
+  }
+}
