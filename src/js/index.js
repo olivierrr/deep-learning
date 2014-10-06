@@ -6,7 +6,7 @@ var game = new Phaser.Game('100%', '100%', Phaser.AUTO, document.body, {
 	render: render 
 })
 
-var AGENT_COUNT = 10
+var AGENT_COUNT = 9
 
 var cursors
 
@@ -23,7 +23,7 @@ function preload () {
 }
 
 function create () {
-	game.world.setBounds(0, 0, '1920', '800')
+	game.world.setBounds(0, 0, '800', '800')
 	game.physics.startSystem(Phaser.Physics.P2JS)
 
 	Object.keys(game.physics.p2.walls).forEach(function (key) {
@@ -42,12 +42,34 @@ function create () {
 }
 
 var frameCount = 0
+var frameCount1 = 0
+var generation = 0
+var bestBrain = {}
 
 function update () {
 
+	frameCount1++
+	if(frameCount1 === 100) {
+		var bestAgent = agents.map(function (a) { return a.fitness })
+		console.log(bestAgent)
+		var bestIndex = Math.min.apply(null, bestAgent)
+		console.log('best fitness', bestIndex)
+		bestIndex = bestAgent.indexOf(bestIndex)
+		bestBrain = agents[bestIndex].saveBrain()
+
+		agents.forEach(function (a) {
+			a.fitness = 0
+			a.loadBrain(bestBrain)
+		})
+		generation++
+		frameCount1 = 0
+	}
+
 	frameCount++
-	if(frameCount=== 10) {
-		agents.forEach(function (agent) { agent.update() })
+	if(frameCount=== 5) {
+		agents.forEach(function (agent) { 
+			agent.update() 
+		})
 		me.update()
 		frameCount = 0
 	}
@@ -68,6 +90,7 @@ function render () {
 	game.debug.text(game.time.fps || '00', 32, 32, "#00ff00")
 
 	game.debug.text(debugTarget.input, 32, 60)
+	game.debug.text('generation: ' + generation, 32, 80)
 }
 
 var o_mcamera

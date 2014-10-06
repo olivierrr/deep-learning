@@ -5,22 +5,22 @@
 function Agent (game, x, y) {
 
 	/*
-	 * @propery {Phaser.Game} game - reference to phaser game instance
+	 * @property {Phaser.Game} game - reference to phaser game instance
 	 */
 	this.game = game
 
 	/*
-	 * @propery brain - convnet brain
+	 * @property brain - convnet brain
 	 */
 	this.brain = new Brain()
 
 	/*
-	 * @propery sprite
+	 * @property sprite
 	 */
 	this.sprite = null
 
 	/*
-	 * @propery body
+	 * @property body
 	 */
 	this.body = null
 
@@ -47,6 +47,11 @@ function Agent (game, x, y) {
 	 * @propery {Array} vision
 	 */
 	this.vision = [0, 0, 0, 0, 0]
+
+	/*
+	 * @property {Number} fitness
+	 */
+	this.fitness = 0
 
 	/*
 	 * @boot
@@ -81,12 +86,13 @@ Agent.prototype.boot = function (x, y) {
 
 /*
  * @method onCollision
- * @private
  */
 Agent.prototype._onCollision = function (body, shapeA, shapeB, equation) {
 
 	if(shapeA.name === 'eye') {
 		var eyeIndex = shapeA.key
+
+		this.fitness++
 
 		if(shapeB.name === 'wall') {
 			this.vision[eyeIndex] = 1
@@ -107,7 +113,6 @@ Agent.prototype._onCollision = function (body, shapeA, shapeB, equation) {
 
 /*
  * @method onCollision
- * @private
  */
 Agent.prototype._onEndCollision = function (body, shapeA, shapeB, equation) {
 
@@ -133,36 +138,29 @@ Agent.prototype.update = function () {
 	switch(output) {
 
 		case 0: 
-			this.body.thrust(2000) 
-			this.reward += 0.2
-			this.body.setZeroRotation()
-			break
-
-		case 1: 
 			this.body.rotateRight(50)
 			break
 
-		case 2: this.body.rotateLeft(50)
+		case 1: this.body.rotateLeft(50)
+			break
+
+		case 2: 
+			this.body.thrust(2000)
+			this.body.setZeroRotation()
 			break
 
 		case 3: this.body.reverse(2000)
 			this.body.setZeroRotation()
 			break
+
 	}
 
-	// // shitty max velocity
-	// if(this.body.velocity.x > 100) this.body.velocity.x = 100
-	// else if(this.body.velocity.x < -100) this.body.velocity.x = -100
-	// if(this.body.velocity.y > 100) this.body.velocity.y = 100
-	// else if(this.body.velocity.y < -100) this.body.velocity.y = -100
 }
 
 /*
  * @method rewardBrain
  */
 Agent.prototype.rewardBrain = function () {
-	var reward = this.getReward()
-	//console.log('reward', reward)
 	this.brain.backward(reward)
 }
 
@@ -189,29 +187,46 @@ Agent.prototype.getInput = function () {
 	this.input[8] = this.vision[3] === 2 ? 1 : 0
 	this.input[9] = this.vision[4] === 2 ? 1 : 0
 
-	// eyes distance from sees
-	this.input[10] = 0
-	this.input[11] = 0
-	this.input[12] = 0
-	this.input[13] = 0
-	this.input[14] = 0
+	// todo
+	// // eyes distance from sees
+	// this.input[10] = 0
+	// this.input[11] = 0
+	// this.input[12] = 0
+	// this.input[13] = 0
+	// this.input[14] = 0
 
-	// velocity
-	this.input[15] = (this.body.data.velocity[1]+50)*(0.01) 
-	this.input[16] = (this.body.data.velocity[0]+50)*(0.01) 
+	// // velocity
+	// this.input[15] = (this.body.data.velocity[1]+50)*(0.01) 
+	// this.input[16] = (this.body.data.velocity[0]+50)*(0.01) 
 
 	// angle
-	this.input[17] = (this.body.angle+180)*(100/36000)
-
+	this.input[10] = (this.body.angle+180)*(100/36000)
 
 	return this.input
 }
 
 /*
- * @method method_name
+ * @method getReward
  */
 Agent.prototype.getReward = function () {
 	var reward = this.reward
 	this.reward = 0
 	return reward
+}
+
+/*
+ * @method saveBrain
+ * @return {String} - stringified brain
+ */
+Agent.prototype.saveBrain = function () {
+	var brain = this.brain.value_net.toJSON()
+    return JSON.stringify(brain)
+}
+
+/*
+ * @method loadBrain
+ */
+Agent.prototype.loadBrain = function (brain) {
+	if(typeof brain === 'string') brain = JSON.parse(brain)
+    this.brain.value_net.fromJSON(brain)
 }
