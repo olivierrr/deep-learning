@@ -57,12 +57,16 @@ function Agent (game, x, y) {
 	 * @boot
 	 */
 	this.boot(x, y)
+
 }
 
 /*
  * @method boot
+ * @param {Number} - initial x pos
+ * @param {Number} - initial y pos
  */
 Agent.prototype.boot = function (x, y) {
+
 	this.sprite = this.game.add.sprite(x, y, 'redsquare')
 	this.sprite.width = 20
 	this.sprite.height = 20
@@ -109,6 +113,7 @@ Agent.prototype._onCollision = function (body, shapeA, shapeB, equation) {
 			this.reward += 1
 		}
 	}
+
 }
 
 /*
@@ -117,6 +122,7 @@ Agent.prototype._onCollision = function (body, shapeA, shapeB, equation) {
 Agent.prototype._onEndCollision = function (body, shapeA, shapeB, equation) {
 
 	if(shapeA.name === 'eye') {
+		console.log(shapeA.key)
 		this.vision[shapeA.key] = 0
 	}
 
@@ -161,7 +167,9 @@ Agent.prototype.update = function () {
  * @method rewardBrain
  */
 Agent.prototype.rewardBrain = function () {
-	this.brain.backward(reward)
+
+	this.brain.backward(this.getReward())
+
 }
 
 /*
@@ -203,15 +211,18 @@ Agent.prototype.getInput = function () {
 	this.input[10] = (this.body.angle+180)*(100/36000)
 
 	return this.input
+
 }
 
 /*
  * @method getReward
  */
 Agent.prototype.getReward = function () {
+
 	var reward = this.reward
 	this.reward = 0
 	return reward
+
 }
 
 /*
@@ -219,14 +230,18 @@ Agent.prototype.getReward = function () {
  * @return {String} - stringified brain
  */
 Agent.prototype.saveBrain = function () {
+
 	var brain = this.brain.value_net.toJSON()
     return JSON.stringify(brain)
+
 }
 
 /*
  * @method loadBrain
  */
 Agent.prototype.loadBrain = function (brain) {
+
 	if(typeof brain === 'string') brain = JSON.parse(brain)
     this.brain.value_net.fromJSON(brain)
+
 }
