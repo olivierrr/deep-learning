@@ -89,8 +89,6 @@ Agent.prototype.boot = function (x, y) {
  */
 Agent.prototype._onCollision = function (body, shapeA, shapeB, equation) {
 
-	console.log(body)
-	console.log(shapeB.name)
 
 	// eye sees something!
 	if(shapeA.name === 'eye') {
@@ -101,6 +99,8 @@ Agent.prototype._onCollision = function (body, shapeA, shapeB, equation) {
 
 		else if(shapeB.name === 'agent') {
 			this.vision[1] = 1
+
+			console.log(this.body.x, this.body.y, body.x, body.y)
 		}
 
 		else if(shapeB.name === 'food') {

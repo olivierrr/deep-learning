@@ -1,7 +1,7 @@
 
 (function (ROOT) {
 
-	var INITIAL_AGENT_COUNT = 10
+	var INITIAL_AGENT_COUNT = 2
 	var TICKS_PER_GENERATION = 2000
 
 	var cursors
