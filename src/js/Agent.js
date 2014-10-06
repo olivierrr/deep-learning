@@ -35,11 +35,11 @@ function Agent (game, x, y) {
 	this.input = []
 
 	/*
-	 * eye sensors, Phaser objects
+	 * eye sensor, Phaser objects
 	 *
 	 * @propety {Array} eyes
 	 */
-	this.eyes = []
+	this.eye = null
 
 	/*
 	 * eye sensor output
@@ -75,13 +75,9 @@ Agent.prototype.boot = function (x, y) {
 	this.body = this.sprite.body
 	this.body.data.shapes[0].name = 'agent'
 
-	for(var i=0; i<5; i++) {
-		var eye = this.body.addRectangle(100, 1, ((i*10)-20), -60, (1.221730476+(i*0.174532925)))
-		eye.name = ('eye')
-		eye.key = i
-		eye.sensor = true
-		this.eyes.push(eye)
-	}
+	this.eye = this.body.addCircle(100, 0, 0, -1.570796327)
+	this.eye.name = ('eye')
+	this.eye.sensor = true
 
 	this.body.onBeginContact.add(this._onCollision, this)
 	this.body.onEndContact.add(this._onEndCollision, this)
@@ -93,25 +89,40 @@ Agent.prototype.boot = function (x, y) {
  */
 Agent.prototype._onCollision = function (body, shapeA, shapeB, equation) {
 
+	console.log(body)
+	console.log(shapeB.name)
+
+	// eye sees something!
 	if(shapeA.name === 'eye') {
-		var eyeIndex = shapeA.key
+
+		if(shapeB.name === 'wall') {
+			this.vision[0] = 1
+		}
+
+		else if(shapeB.name === 'agent') {
+			this.vision[1] = 1
+		}
+
+		else if(shapeB.name === 'food') {
+			this.vision[2] = 1
+		}
+	}
+
+	// we collided with something!
+	else if(shapeA.name === 'agent') {
 
 		this.fitness++
 
 		if(shapeB.name === 'wall') {
-			this.vision[eyeIndex] = 1
 			this.reward -= 1
 		}
-
 		else if(shapeB.name === 'agent') {
-			this.vision[eyeIndex] = 2
 			this.reward -= 1
 		}
-
 		else if(shapeB.name === 'food') {
-			this.vision[eyeIndex] = 3
 			this.reward += 1
 		}
+
 	}
 
 }
@@ -122,8 +133,17 @@ Agent.prototype._onCollision = function (body, shapeA, shapeB, equation) {
 Agent.prototype._onEndCollision = function (body, shapeA, shapeB, equation) {
 
 	if(shapeA.name === 'eye') {
-		console.log(shapeA.key)
-		this.vision[shapeA.key] = 0
+		if(shapeB.name === 'wall') {
+			this.vision[0] = 0
+		}
+
+		else if(shapeB.name === 'agent') {
+			this.vision[1] = 0
+		}
+
+		else if(shapeB.name === 'food') {
+			this.vision[2] = 0
+		}
 	}
 
 }
@@ -185,15 +205,15 @@ Agent.prototype.getInput = function () {
 	this.input[0] = this.vision[0] === 1 ? 1 : 0
 	this.input[1] = this.vision[1] === 1 ? 1 : 0
 	this.input[2] = this.vision[2] === 1 ? 1 : 0
-	this.input[3] = this.vision[3] === 1 ? 1 : 0
-	this.input[4] = this.vision[4] === 1 ? 1 : 0
+	// this.input[3] = this.vision[3] === 1 ? 1 : 0
+	// this.input[4] = this.vision[4] === 1 ? 1 : 0
 
-	// eyes sees agent
-	this.input[5] = this.vision[0] === 2 ? 1 : 0
-	this.input[6] = this.vision[1] === 2 ? 1 : 0
-	this.input[7] = this.vision[2] === 2 ? 1 : 0
-	this.input[8] = this.vision[3] === 2 ? 1 : 0
-	this.input[9] = this.vision[4] === 2 ? 1 : 0
+	// // eyes sees agent
+	// this.input[5] = this.vision[0] === 2 ? 1 : 0
+	// this.input[6] = this.vision[1] === 2 ? 1 : 0
+	// this.input[7] = this.vision[2] === 2 ? 1 : 0
+	// this.input[8] = this.vision[3] === 2 ? 1 : 0
+	// this.input[9] = this.vision[4] === 2 ? 1 : 0
 
 	// todo
 	// // eyes distance from sees
@@ -208,7 +228,7 @@ Agent.prototype.getInput = function () {
 	// this.input[16] = (this.body.data.velocity[0]+50)*(0.01) 
 
 	// angle
-	this.input[10] = (this.body.angle+180)*(100/36000)
+	this.input[3] = (this.body.angle+180)*(100/36000)
 
 	return this.input
 
